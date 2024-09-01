@@ -14,6 +14,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @method_decorator(csrf_exempt)
     @action(detail=False, methods=['post'], url_path='login')
     def login(self, request):
         username = request.data.get('username')
@@ -30,6 +31,7 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
+    @method_decorator(csrf_exempt)
     @action(detail=False, methods=['get'], url_path='user-role')
     def user_role(self, request):
         user = request.user
@@ -43,6 +45,7 @@ class EmployeeLocationViewSet(viewsets.ModelViewSet):
     queryset = EmployeeLocation.objects.all()
     serializer_class = EmployeeLocationSerializer
 
+    @method_decorator(csrf_exempt)
     @action(detail=False, methods=['post'], url_path='start-tracking')
     def start_tracking(self, request):
         user = request.user
@@ -51,6 +54,7 @@ class EmployeeLocationViewSet(viewsets.ModelViewSet):
         location = EmployeeLocation.objects.create(user=user, latitude=latitude, longitude=longitude)
         return Response(EmployeeLocationSerializer(location).data)
 
+    @method_decorator(csrf_exempt)
     @action(detail=False, methods=['get'], url_path='locations')
     def get_locations(self, request):
         if not request.user.is_admin:
