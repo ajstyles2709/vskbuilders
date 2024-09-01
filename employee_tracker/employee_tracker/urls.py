@@ -13,17 +13,31 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+# from django.contrib import admin
+# from django.urls import path
+# from django.urls import path, include
+# from rest_framework.routers import DefaultRouter
+# from tracking.views import UserViewSet, EmployeeLocationViewSet
+
+# router = DefaultRouter()
+# router.register(r'users', UserViewSet)
+# router.register(r'locations', EmployeeLocationViewSet)
+
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+#     path('api/', include(router.urls)),
+# ]
+
+
 from django.contrib import admin
 from django.urls import path
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from tracking.views import UserViewSet, EmployeeLocationViewSet
-
-router = DefaultRouter()
-router.register(r'users', UserViewSet)
-router.register(r'locations', EmployeeLocationViewSet)
+from tracking.views import login, user_role, start_tracking, get_locations
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
+    path('api/login/', login, name='login'),
+    path('api/user-role/', user_role, name='user_role'),
+    path('api/start-tracking/', start_tracking, name='start_tracking'),
+    path('api/locations/', get_locations, name='get_locations'),
 ]
+
