@@ -31,13 +31,14 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from tracking.views import login, user_role, start_tracking, get_locations
+from tracking.views import getusers, login, user_role, start_tracking, get_locations
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/login/', login, name='login'),
-    path('api/user-role/', user_role, name='user_role'),
-    path('api/start-tracking/', start_tracking, name='start_tracking'),
-    path('api/locations/', get_locations, name='get_locations'),
+    path('api/users', getusers, name='getusers'),
+    path('api/login', login, name='login'),
+    path('api/user-role', user_role, name='user_role'),
+    path('api/start-tracking', start_tracking, name='start_tracking'),
+    path('api/locations', get_locations, name='get_locations'),
 ]
 

@@ -77,6 +77,8 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
 
 @csrf_exempt
 @api_view(['POST'])
@@ -86,12 +88,13 @@ def login(request):
     user = authenticate(username=username, password=password)
     if user is not None:
         refresh = RefreshToken.for_user(user)
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            'user_id': user.id,
-            'is_admin': user.is_superuser,
-        })
+        response_data = {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+        'user_id': user.id,
+        'is_admin': user.is_superuser,
+        }
+        return JsonResponse(response_data, status=200)
     else:
         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -104,6 +107,17 @@ def user_role(request):
         'username': user.username,
         'is_admin': user.is_superuser
     })
+
+@csrf_exempt
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getusers(request):
+    users = User.objects.filter(is_superuser=False)
+    
+    # Create a list of users to return
+    user_list = [{'username': user.username, 'user_id': user.id} for user in users]
+    
+    return Response(user_list)
 
 @csrf_exempt
 @api_view(['POST'])
