@@ -110,24 +110,53 @@ def user_role(request):
 
 @csrf_exempt
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def getusers(request):
     users = User.objects.filter(is_superuser=False)
     
     # Create a list of users to return
     user_list = [{'username': user.username, 'user_id': user.id} for user in users]
     
-    return Response(user_list)
+    return Response(user_list, status=200)
 
 @csrf_exempt
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def start_tracking(request):
-    user = request.user
-    latitude = request.data.get('latitude')
-    longitude = request.data.get('longitude')
-    location = EmployeeLocation.objects.create(user=user, latitude=latitude, longitude=longitude)
-    return Response(EmployeeLocationSerializer(location).data)
+    data = json.loads(request.body)
+    # Extract the fields from the data
+    user_id = data.get('id')
+    latitude = data.get('latitude')
+    longitude = data.get('longitude')
+    
+    print(user, latitude, longitude)
+    userObj = User.objects.get(id=user)
+    # userObj = User.objects.all()
+    print("userObj-->>", userObj)
+    trackObj = EmployeeLocation(user=userObj, latitude=latitude, longitude=longitude)
+    trackObj.save()
+    # location = EmployeeLocation.objects.create()
+    # print("EmployeeLocationSerializer Data", EmployeeLocationSerializer(location).data)
+    return JsonResponse({'status': 'success'}, status=200)
+    
+
+@csrf_exempt
+@api_view(['POST'])
+def stop_tracking(request):
+    data = json.loads(request.body)
+    # Extract the fields from the data
+    user_id = data.get('id')
+    latitude = data.get('latitude')
+    longitude = data.get('longitude')
+    
+    # userObj = User.objects.get(id=user)
+    userObj = User.objects.get(id=user)
+    # userObj = User.objects.all()
+    print("userObj-->>", userObj)
+    trackObj = EmployeeLocation(user=userObj, latitude=latitude, longitude=longitude)
+    trackObj.save()
+    # location = EmployeeLocation.objects.create()
+    # print("EmployeeLocationSerializer Data", EmployeeLocationSerializer(location).data)
+    return Response()
+
 
 @csrf_exempt
 @api_view(['GET'])
@@ -137,3 +166,19 @@ def get_locations(request):
         return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
     locations = EmployeeLocation.objects.all()
     return Response(EmployeeLocationSerializer(locations, many=True).data)
+
+
+@csrf_exempt
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_journey(request, user_id):
+    if not request.user.is_superuser:
+        return Response({'detail': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+    
+    # Get the journey of the specified user
+    locations = EmployeeLocation.objects.filter(user_id=user_id).order_by('timestamp')
+    
+    # Serialize the data
+    serialized_locations = EmployeeLocationSerializer(locations, many=True).data
+    
+    return Response(serialized_locations, status=200)
